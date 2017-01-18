@@ -16,7 +16,7 @@ function init() {
 
     parameters = {
         StripWidth: 1.0,
-        Speed: 0.25,
+        Speed: 0.0,
         RotationY: 45,
         RotationZ: 25
     }
@@ -29,7 +29,7 @@ function init() {
     // scene.fog = new THREE.FogExp2( 0xcccccc, 0.01 ); 
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 25;
+    camera.position.z = 200;
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     renderer = new THREE.WebGLRenderer({
@@ -64,7 +64,7 @@ function init() {
 function geoMeshSetting() {
     this._gNum = 1;
     var _wireMatE = new THREE.MeshBasicMaterial({
-        color: 0x00ff00,
+        color: 0x33aa33,
         opacity: 0.3,
         wireframe: true,
         transparent: true,
@@ -75,21 +75,31 @@ function geoMeshSetting() {
     for (var i = 0; i < _gNum; i += 1) {
         _norMatS[i] = new THREE.MeshLambertMaterial({
             color: 0xffffff,
-            opacity: 0.85,
+            opacity: 1.0,
             transparent: true,
             shading: THREE.SmoothShading,
             side: THREE.DoubleSide
         });
     }
 
+    var _pointMat = new Array();
+    for (var i = 0; i < _gNum; i += 1) {
+        _pointMat[i] = new THREE.PointsMaterial({
+            // color: 0x00ff00,
+            vertexColors: THREE.VertexColors,
+            size: 1
+        });
+    }
+
+
     var _geomS = new Array();
     for (var i = 0; i < _gNum; i += 1) {
         scene.remove(objectS[i]);
-        _geomS[i] = geom(6);
+        _geomS[i] = geom(500);
         objectS[i] = new THREE.Mesh(_geomS[i], _norMatS[i]);
         wireMeshS[i] = new THREE.Mesh(_geomS[i], _wireMatE);
         scene.add(objectS[i]);
-        // scene.add(wireMeshS[i]);
+        scene.add(wireMeshS[i]);
     }
 
 }
@@ -103,9 +113,9 @@ function geoMeshUpdate() {
         objectS[i].rotation.x = Math.PI * -10 / 180.0;
         objectS[i].rotation.y = _delta * (i + _followIndex);
         objectS[i].rotation.z = Math.PI * 0.25 * 0;
-        wireMeshS[i].rotation.x = _delta * (i + _followIndex);
-        wireMeshS[i].rotation.y = Math.PI;
-        wireMeshS[i].rotation.z = Math.PI * 0.25;
+        wireMeshS[i].rotation.x = objectS[i].rotation.x;
+        wireMeshS[i].rotation.y = objectS[i].rotation.y;
+        wireMeshS[i].rotation.z = objectS[i].rotation.z;
     }
 }
 
@@ -116,34 +126,38 @@ function geom(_size) {
     this._step = 36;
     this._size = _size;
     this._ySize = parameters.StripWidth;
-    
-    this.yStep = 19;
 
-    for (var i = 0; i <= _step; i += 1) {
-        for (var j = 0; j < this.yStep; j += 1) {
-            var _radius = Math.sin(THREE.Math.degToRad(j * 180.0 / 18)) * _size;
+    this.yStep = 18;
 
-            var _x1 = Math.cos(THREE.Math.degToRad(i * 360 / _step)) * _radius;
-            var _y1 = Math.cos(THREE.Math.degToRad(j * 180.0 / 18)) * _size;
-            var _z1 = Math.sin(THREE.Math.degToRad(i * 360 / _step)) * _radius;
+    for (var j = 0; j <= 1; j += 1) {
+        for (var i = 0; i <= _step; i += 1) {
             
-            var _x2 = Math.cos(THREE.Math.degToRad((i + 1) * 360 / _step)) * _radius;
-            var _y2 = Math.cos(THREE.Math.degToRad((j + 1) * 180.0 / 18)) * _size;
-            var _z2 = Math.sin(THREE.Math.degToRad((i + 1) * 360 / _step)) * _radius;
+            var _radius1 = Math.sin(THREE.Math.degToRad(j * 180.0 / 18)) * _size;
+            var _radius2 = Math.sin(THREE.Math.degToRad((j+1) * 180.0 / 18)) * _size;
             
-            var v1 = new THREE.Vector3(_x1, _y1, _z1);
-            var v2 = new THREE.Vector3(_x2, _y1, _z2);
-            var v3 = new THREE.Vector3(_x1, _y1, _z1);
+            var _y1 = Math.cos(THREE.Math.degToRad(j * 180.0 / 18.0)) * _size;
+            var _y2 = Math.cos(THREE.Math.degToRad((j + 1) * 180.0 / 18.0)) * _size;
+
+            var _x1 = Math.cos(THREE.Math.degToRad(i * 360 / _step)) * _radius1;
+            var _z1 = Math.sin(THREE.Math.degToRad(i * 360 / _step)) * _radius1;
+            var _x2 = Math.cos(THREE.Math.degToRad((i + 1) * 360 / _step)) * _radius1;
+            var _z2 = Math.sin(THREE.Math.degToRad((i + 1) * 360 / _step)) * _radius1;
+
+            var v1 = new THREE.Vector3(_x1, 0, _z1);
+            var v2 = new THREE.Vector3(_x1, 20, _z1);
+            var v3 = new THREE.Vector3(_x2, 0, _z2);
+            var v4 = new THREE.Vector3(_x2, 20, _z2);
             
             _geom.vertices.push(v1);
             _geom.vertices.push(v2);
             _geom.vertices.push(v3);
+            _geom.vertices.push(v4);
         }
     }
 
-    for (var i = 0; i < _geom.vertices.length - 3; i += 3) {
-        _geom.faces.push(new THREE.Face3(i + 1, i, i + 2));
-        _geom.faces.push(new THREE.Face3(i + 3, i, i + 1));
+    for (var i = 0; i < _geom.vertices.length - 4; i += 4) {
+        _geom.faces.push(new THREE.Face3(i + 0, i + 1, i + 2));
+        _geom.faces.push(new THREE.Face3(i + 2, i + 1, i + 3));
         _geom.computeFaceNormals();
     }
 
@@ -177,8 +191,8 @@ function counter() {
 
 //-----------------------------------------------------------------------------
 function lightSetting() {
-    var light = new THREE.PointLight(0xffffff, 1, 50);
-    var _vLight = new THREE.Vector3(0, 2, 15);
+    var light = new THREE.PointLight(0xffffff, 1, 2000);
+    var _vLight = new THREE.Vector3(0, 0, 300);
     light.position.set(_vLight.x, _vLight.y, _vLight.z);
     light.intensity = 1;
 
