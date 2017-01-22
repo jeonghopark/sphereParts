@@ -16,7 +16,7 @@ function init() {
 
     parameters = {
         StripWidth: 1.0,
-        Speed: 0.0,
+        Speed: 1.0,
         RotationY: 45,
         RotationZ: 25
     }
@@ -72,7 +72,7 @@ function onWindowResize(){
 function geoMeshSetting() {
     this._gNum = 1;
     
-    this._log = 12;
+    this._log = 18;
     this._lad = 18;
     
     var _geoNum = this._log * this._lad;
@@ -93,7 +93,7 @@ function geoMeshSetting() {
         for (var h = 0; h < this._log; h++) {
             var _index = h + v * this._log;
             _norMatS[_index] = new THREE.MeshLambertMaterial({
-                color: 'hsl(' + _index * 255 / _geoNum + ', 100%, 50%)',
+                // color: 'hsl(' + _index * 255 / _geoNum + ', 100%, 50%)',
                 opacity: 1.0,
                 transparent: true,
                 shading: THREE.SmoothShading,
@@ -111,6 +111,7 @@ function geoMeshSetting() {
             scene.remove(objectS[_index]);
             _geomS[_index] = geom(v, h, this._log, this._lad);
             objectS[_index] = new THREE.Mesh(_geomS[_index], _norMatS[_index]);
+            objectS[_index].geometry.computeBoundingSphere();
             wireMeshS[_index] = new THREE.Mesh(_geomS[_index], _wireMatE);
             scene.add(objectS[_index]);
             // scene.add(wireMeshS[i]);
@@ -124,10 +125,31 @@ function geoMeshSetting() {
 function geoMeshUpdate() {
     var _delta = Math.PI * counter() * 0.05 / 180.0;
     var _followIndex = 20;
+
+    var _id = 112;
+    // objectS[_id].rotation.x = 0;
+    // objectS[_id].rotation.y = _delta * _followIndex;
+    // objectS[_id].rotation.z = 0;
+
+    // console.log(objectS[_id]);
+
+    var _vector = new THREE.Vector3(objectS[_id].geometry.boundingSphere.center.x, objectS[_id].geometry.boundingSphere.center.y, objectS[_id].geometry.boundingSphere.center.z);
+    _vector.multiplyScalar( Math.sin(Math.PI * counter() / 180.0) * 0.1 );
+    // console.log(_vector);
+    objectS[_id].position.x = _vector.x;
+    objectS[_id].position.y = _vector.y;
+    objectS[_id].position.z = _vector.z;
+    
+    
+    // objectS[_id].position.x = Math.sin(Math.PI * counter() * 5 / 180.0) * 30;
+    // objectS[_id].position.y = Math.sin(Math.PI * counter() * 5 / 180.0) * 30;
+    // objectS[_id].position.z = Math.sin(Math.PI * counter() * 5 / 180.0) * 30;
+    
+
     for (var i = 0; i < objectS.length; i += 1) {
-        objectS[i].rotation.x = Math.PI * 0 / 180.0;
-        objectS[i].rotation.y = _delta * (0 + _followIndex);
-        objectS[i].rotation.z = Math.PI * 0.25 * 0;
+        // objectS[i].rotation.x = Math.PI * 0 / 180.0;
+        // objectS[i].rotation.y = _delta * (0 + _followIndex);
+        // objectS[i].rotation.z = Math.PI * 0.25 * 0;
         wireMeshS[i].rotation.x = objectS[i].rotation.x;
         wireMeshS[i].rotation.y = objectS[i].rotation.y;
         wireMeshS[i].rotation.z = objectS[i].rotation.z;
