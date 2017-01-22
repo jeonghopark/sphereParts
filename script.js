@@ -42,6 +42,8 @@ function init() {
     // renderer.gammaOutput = true;
     renderer.setClearColor(0x000000, 0.0);
 
+    window.addEventListener( 'resize', onWindowResize, false );
+
     stats = new Stats();
 
     var _container = document.getElementById('container');
@@ -55,9 +57,15 @@ function init() {
 
     guiSetting();
 
-
 }
 
+
+//-----------------------------------------------------------------------------
+function onWindowResize(){
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+}
 
 
 //-----------------------------------------------------------------------------
@@ -133,25 +141,11 @@ function geom(_size) {
         var _radius1 = Math.sin(THREE.Math.degToRad(j * 180.0 / 18)) * _size;
         // var _radius2 = Math.sin(THREE.Math.degToRad((j+1) * 180.0 / 18)) * _size;
         for (var i = 0; i <= _step; i += 1) {            
-            
             var _y1 = Math.cos(THREE.Math.degToRad(j * 180.0 / 18.0)) * _size;
-            var _y2 = Math.cos(THREE.Math.degToRad((j + 1) * 180.0 / 18.0)) * _size;
-
             var _x1 = Math.cos(THREE.Math.degToRad(i * 360 / _step)) * _radius1;
             var _z1 = Math.sin(THREE.Math.degToRad(i * 360 / _step)) * _radius1;
-
-            var _x2 = Math.cos(THREE.Math.degToRad((i + 1) * 360 / _step)) * _radius1;
-            var _z2 = Math.sin(THREE.Math.degToRad((i + 1) * 360 / _step)) * _radius1;
-
             var v0 = new THREE.Vector3(_x1, _y1, _z1);
-            var v1 = new THREE.Vector3(_x2, _y1, _z2);
-            var v2 = new THREE.Vector3(_x1, _y2, _z1);
-            var v3 = new THREE.Vector3(_x2, _y2, _z2);
-            
             _geom.vertices.push(v0);
-            // _geom.vertices.push(v1);
-            // _geom.vertices.push(v2);
-            // _geom.vertices.push(v3);
         }
     }
 
