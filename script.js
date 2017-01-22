@@ -124,26 +124,26 @@ function geoMeshSetting() {
 //-----------------------------------------------------------------------------
 function geoMeshUpdate() {
     var _delta = Math.PI * counter() * 0.05 / 180.0;
+    var _deltaSin = (Math.sin(Math.PI * counter() * 1 / 180.0) + 1 ) * 0.2;
     var _followIndex = 20;
 
-    var _id = 112;
+    // var _id = 112;
     // objectS[_id].rotation.x = 0;
     // objectS[_id].rotation.y = _delta * _followIndex;
     // objectS[_id].rotation.z = 0;
 
     // console.log(objectS[_id]);
-
-    var _vector = new THREE.Vector3(objectS[_id].geometry.boundingSphere.center.x, objectS[_id].geometry.boundingSphere.center.y, objectS[_id].geometry.boundingSphere.center.z);
-    _vector.multiplyScalar( Math.sin(Math.PI * counter() / 180.0) * 0.1 );
-    // console.log(_vector);
-    objectS[_id].position.x = _vector.x;
-    objectS[_id].position.y = _vector.y;
-    objectS[_id].position.z = _vector.z;
     
     
-    // objectS[_id].position.x = Math.sin(Math.PI * counter() * 5 / 180.0) * 30;
-    // objectS[_id].position.y = Math.sin(Math.PI * counter() * 5 / 180.0) * 30;
-    // objectS[_id].position.z = Math.sin(Math.PI * counter() * 5 / 180.0) * 30;
+    var _vector = new Array();
+    for (var i = 0; i < objectS.length; i++) {
+        var _getV = objectS[i].geometry.boundingSphere.center;
+        _vector[i] = new THREE.Vector3(_getV.x, _getV.y, _getV.z);
+        _vector[i].multiplyScalar( _deltaSin );
+        objectS[i].position.x = _vector[i].x;
+        objectS[i].position.y = _vector[i].y;
+        objectS[i].position.z = _vector[i].z;
+    }
     
 
     for (var i = 0; i < objectS.length; i += 1) {
