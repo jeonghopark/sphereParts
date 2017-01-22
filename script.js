@@ -3,6 +3,8 @@ var stats;
 var wireMeshS = new Array();
 var objectS = new Array();;
 
+var randomSpeed = new Array();
+
 var parameters;
 
 init();
@@ -16,7 +18,7 @@ function init() {
 
     parameters = {
         StripWidth: 1.0,
-        Speed: 1.0,
+        Speed: 0.5,
         RotationY: 45,
         RotationZ: 25
     }
@@ -72,10 +74,12 @@ function onWindowResize(){
 function geoMeshSetting() {
     this._gNum = 1;
     
-    this._log = 18;
+    this._log = 42;
     this._lad = 18;
     
     var _geoNum = this._log * this._lad;
+        
+    randomSpeed = makeRandom(_geoNum);
     
     var _wireMatE = new THREE.MeshBasicMaterial({
         color: 0x33aa33,
@@ -94,6 +98,7 @@ function geoMeshSetting() {
             var _index = h + v * this._log;
             _norMatS[_index] = new THREE.MeshLambertMaterial({
                 // color: 'hsl(' + _index * 255 / _geoNum + ', 100%, 50%)',
+                color: 0x55ff55,
                 opacity: 1.0,
                 transparent: true,
                 shading: THREE.SmoothShading,
@@ -122,42 +127,6 @@ function geoMeshSetting() {
 
 
 //-----------------------------------------------------------------------------
-function geoMeshUpdate() {
-    var _delta = Math.PI * counter() * 0.05 / 180.0;
-    var _deltaSin = (Math.sin(Math.PI * counter() * 1 / 180.0) + 1 ) * 0.2;
-    var _followIndex = 20;
-
-    // var _id = 112;
-    // objectS[_id].rotation.x = 0;
-    // objectS[_id].rotation.y = _delta * _followIndex;
-    // objectS[_id].rotation.z = 0;
-
-    // console.log(objectS[_id]);
-    
-    
-    var _vector = new Array();
-    for (var i = 0; i < objectS.length; i++) {
-        var _getV = objectS[i].geometry.boundingSphere.center;
-        _vector[i] = new THREE.Vector3(_getV.x, _getV.y, _getV.z);
-        _vector[i].multiplyScalar( _deltaSin );
-        objectS[i].position.x = _vector[i].x;
-        objectS[i].position.y = _vector[i].y;
-        objectS[i].position.z = _vector[i].z;
-    }
-    
-
-    for (var i = 0; i < objectS.length; i += 1) {
-        // objectS[i].rotation.x = Math.PI * 0 / 180.0;
-        // objectS[i].rotation.y = _delta * (0 + _followIndex);
-        // objectS[i].rotation.z = Math.PI * 0.25 * 0;
-        wireMeshS[i].rotation.x = objectS[i].rotation.x;
-        wireMeshS[i].rotation.y = objectS[i].rotation.y;
-        wireMeshS[i].rotation.z = objectS[i].rotation.z;
-    }
-}
-
-
-//-----------------------------------------------------------------------------
 function geom(v, h, xStep, yStep) {
     this._geom = new THREE.Geometry();
     this._xStep = xStep;
@@ -180,6 +149,38 @@ function geom(v, h, xStep, yStep) {
     _geom.computeFaceNormals();
 
     return _geom
+}
+
+
+
+//-----------------------------------------------------------------------------
+function geoMeshUpdate() {
+    var _delta = Math.PI * counter() * 0.05 / 180.0;
+    var _deltaSin = (Math.sin(Math.PI * counter() * 4.0 / 180.0) + 1 ) * 0.3;
+    var _followIndex = 20;
+
+    if (_deltaSin < 0.005) {
+        randomSpeed = makeRandom(objectS.length);
+    }
+
+    var _vector = new Array();
+    for (var i = 0; i < objectS.length; i++) {
+        var _getV = objectS[i].geometry.boundingSphere.center;
+        _vector[i] = new THREE.Vector3(_getV.x, _getV.y, _getV.z);
+        _vector[i].multiplyScalar( _deltaSin * randomSpeed[i] );
+        objectS[i].position.x = _vector[i].x;
+        objectS[i].position.y = _vector[i].y;
+        objectS[i].position.z = _vector[i].z;
+    }
+    
+    for (var i = 0; i < objectS.length; i += 1) {
+        // objectS[i].rotation.x = Math.PI * 0 / 180.0;
+        // objectS[i].rotation.y = _delta * (0 + _followIndex);
+        // objectS[i].rotation.z = Math.PI * 0.25 * 0;
+        wireMeshS[i].rotation.x = objectS[i].rotation.x;
+        wireMeshS[i].rotation.y = objectS[i].rotation.y;
+        wireMeshS[i].rotation.z = objectS[i].rotation.z;
+    }
 }
 
 
@@ -214,8 +215,8 @@ function lightSetting() {
     light.position.set(_vLight.x, _vLight.y, _vLight.z);
     light.intensity = 1;
 
-    var lightIn = new THREE.PointLight(0xFEF8D1, 1, 10);
-    var _vLightIn = new THREE.Vector3(0, 2, 15);
+    var lightIn = new THREE.PointLight(0xFEF8D1, 1, 3);
+    var _vLightIn = new THREE.Vector3(0, 0, 0);
     lightIn.position.set(_vLightIn.x, _vLightIn.y, _vLightIn.z);
     lightIn.intensity = 1;
 
@@ -248,4 +249,18 @@ function guiSetting() {
     _stripWidth.onChange(function() {
         geoMeshSetting();
     });
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+function makeRandom(index) {
+    var _r = new Array();
+    
+    for (var i = 0; i < index; i++) {
+        _r[i] = Math.random(1);
+    }
+    
+    return _r
 }
